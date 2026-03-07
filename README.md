@@ -13,7 +13,27 @@ An AI-powered NBA front office assistant. Ask about player contracts, salary cap
 - **Trade Analyzer** — Propose trades and get CBA salary-matching validation
 - **Stat Leaders** — League leaders across 19 stat categories
 - **CBA Rules Engine** — Salary cap thresholds, available exceptions (MLE, BAE, room), and trade rules
+- **Inline Visualizations** — 11 Recharts components: contract timelines, radar charts, career trajectories, trade analysis cards, and more
 - **Streaming Responses** — Real-time SSE streaming with tool call transparency
+
+See [Usage Examples](docs/usage-examples.md) for all visualizations.
+
+### Screenshots
+
+<table>
+  <tr>
+    <td><strong>Player Radar</strong><br><img src="docs/screenshots/player-radar.png" width="400"></td>
+    <td><strong>Contract Timeline</strong><br><img src="docs/screenshots/contract-timeline.png" width="400"></td>
+  </tr>
+  <tr>
+    <td><strong>Stat Leaders</strong><br><img src="docs/screenshots/stat-leaders.png" width="400"></td>
+    <td><strong>Team Payroll</strong><br><img src="docs/screenshots/team-payroll.png" width="400"></td>
+  </tr>
+  <tr>
+    <td><strong>Trade Analysis</strong><br><img src="docs/screenshots/trade-analysis.png" width="400"></td>
+    <td><strong>Career Trajectory</strong><br><img src="docs/screenshots/career-trajectory.png" width="400"></td>
+  </tr>
+</table>
 
 ## Architecture
 
@@ -126,13 +146,19 @@ backend/
 frontend/
   src/
     App.jsx               # Main layout + welcome screen
+    VisualizationTestPage.jsx  # Fixture test page (?test=viz)
     hooks/useChat.js      # SSE consumer + message state
     components/
       ChatMessage.jsx     # Message renderer with markdown
       ChatInput.jsx       # Input bar
       ToolCallCard.jsx    # Tool call transparency UI
-      CapSheetCard.jsx    # Structured cap sheet display
+      ToolResultVisualization.jsx  # Tool → chart component mapping
       Sidebar.jsx         # Navigation sidebar
+      visualizations/     # 11 Recharts components + ChartCard wrapper
+
+docs/
+  usage-examples.md       # Screenshots of all visualizations
+  screenshots/            # Generated PNG screenshots
 ```
 
 ## License

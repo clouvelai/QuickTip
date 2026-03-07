@@ -47,6 +47,9 @@ The request flow is: `POST /api/chat` (SSE) → `OrchestratorAgent` → speciali
 - **`frontend/src/hooks/useChat.js`** — Core SSE consumer. Manages message state, parses `text_delta`/`tool_call`/`tool_result`/`done` events from the stream. Handles abort and error states.
 - **`frontend/src/App.jsx`** — Main layout: Sidebar + chat messages + input. Includes `WelcomeScreen` with starter prompts.
 - **`frontend/src/components/`** — `ChatMessage.jsx`, `ChatInput.jsx`, `ToolCallCard.jsx`, `CapSheetCard.jsx`, `Sidebar.jsx`.
+- **`frontend/src/components/ToolResultVisualization.jsx`** — Maps tool names to visualization components. Source of truth for which tool gets which chart/card.
+- **`frontend/src/components/visualizations/`** — 11 Recharts visualization components + shared `ChartCard.jsx` wrapper. Components: `ContractTimelineChart`, `TeamPayrollChart`, `PlayerRadarChart`, `CareerTrajectoryChart`, `StatLeadersChart`, `RosterCard`, `PlayerProfileCard`, `CapInfoCard`, `SalaryMatchCard`, `ExceptionsCard`, `TradeAnalysisCard`.
+- **`frontend/src/VisualizationTestPage.jsx`** — Standalone fixture page rendering all 11 components with hardcoded data. Accessed via `?test=viz` query param (lazy-loaded, not in production bundle).
 - Vite proxies `/api` to `http://localhost:8000` (configured in `vite.config.js`).
 
 ## Database Schema (Read-Only Render PostgreSQL)
@@ -80,3 +83,11 @@ The chat endpoint streams these event types:
 1. Create the async function in the appropriate `backend/tools/*_tools.py` module
 2. Register it in `backend/tools/registry.py` with name, description, and JSON Schema parameters
 3. Add the tool name to the relevant specialist agent's `available_tools` list in `backend/agents/specialists.py`
+
+## Visualization Test Page
+
+Visit `http://localhost:5173?test=viz` to render all 11 visualization components with fixture data (no backend needed). Useful for verifying chart rendering after changes.
+
+## Claude Code Skills
+
+- **`/e2e-test`** (`.claude/skills/e2e-test.md`) — Automates visual verification of all visualizations. Supports `mode=fixtures|live|full` and `capture=screenshot|gif`. Screenshots saved to `docs/screenshots/`.

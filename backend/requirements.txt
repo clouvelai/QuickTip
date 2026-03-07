@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+asyncpg
+python-dotenv
+openai
+anthropic
+pydantic
+sse-starlette

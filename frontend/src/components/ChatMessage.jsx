@@ -1,4 +1,5 @@
 import ToolCallCard from './ToolCallCard'
+import ToolResultVisualization from './ToolResultVisualization'
 
 function renderMarkdown(text) {
   if (!text) return null
@@ -50,7 +51,10 @@ export default function ChatMessage({ message, isStreaming }) {
         {!isUser && message.toolCalls && message.toolCalls.length > 0 && (
           <div className="w-full mt-1">
             {message.toolCalls.map((tc, i) => (
-              <ToolCallCard key={`${tc.name}-${i}`} toolCall={tc} />
+              <div key={`${tc.name}-${i}`}>
+                <ToolCallCard toolCall={tc} />
+                {tc.result && <ToolResultVisualization toolCall={tc} />}
+              </div>
             ))}
           </div>
         )}

@@ -61,6 +61,7 @@ async def _ollama_completion(
 
     if stream:
         collected_tool_calls = {}
+        in_think_block = False
         async with await client.chat.completions.create(**kwargs) as response:
             async for chunk in response:
                 choice = chunk.choices[0] if chunk.choices else None
@@ -68,9 +69,28 @@ async def _ollama_completion(
                     continue
                 delta = choice.delta
 
-                # Text content
+                # Text content — strip <think>...</think> blocks
                 if delta and delta.content:
-                    yield {"type": "text_delta", "data": delta.content}
+                    text = delta.content
+                    while text:
+                        if in_think_block:
+                            end = text.find("</think>")
+                            if end != -1:
+                                in_think_block = False
+                                text = text[end + len("</think>"):]
+                            else:
+                                text = ""
+                        else:
+                            start = text.find("<think>")
+                            if start != -1:
+                                before = text[:start]
+                                if before:
+                                    yield {"type": "text_delta", "data": before}
+                                in_think_block = True
+                                text = text[start + len("<think>"):]
+                            else:
+                                yield {"type": "text_delta", "data": text}
+                                text = ""
 
                 # Tool calls (streamed in parts)
                 if delta and delta.tool_calls:

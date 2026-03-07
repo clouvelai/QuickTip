@@ -1,6 +1,18 @@
+import { Component } from 'react'
 import ReactMarkdown from 'react-markdown'
 import ToolCallCard from './ToolCallCard'
 import ToolResultVisualization from './ToolResultVisualization'
+
+class MarkdownErrorBoundary extends Component {
+  state = { hasError: false }
+  static getDerivedStateFromError() { return { hasError: true } }
+  render() {
+    if (this.state.hasError) {
+      return <div style={{ whiteSpace: 'pre-wrap' }}>{this.props.fallback}</div>
+    }
+    return this.props.children
+  }
+}
 
 export default function ChatMessage({ message, isStreaming }) {
   const isUser = message.role === 'user'
@@ -24,7 +36,11 @@ export default function ChatMessage({ message, isStreaming }) {
           {message.content && (
             isUser
               ? message.content
-              : <ReactMarkdown className="markdown-content">{message.content}</ReactMarkdown>
+              : <MarkdownErrorBoundary fallback={message.content}>
+                  <div className="markdown-content">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
+                </MarkdownErrorBoundary>
           )}
           {!message.content && isStreaming && !isUser && (
             <span className="inline-flex gap-1">

@@ -1,19 +1,6 @@
+import ReactMarkdown from 'react-markdown'
 import ToolCallCard from './ToolCallCard'
 import ToolResultVisualization from './ToolResultVisualization'
-
-function renderMarkdown(text) {
-  if (!text) return null
-  const lines = text.split('\n')
-  return lines.map((line, i) => {
-    const parts = line.split(/(\*\*.*?\*\*)/g).map((part, j) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={j} className="font-semibold text-white">{part.slice(2, -2)}</strong>
-      }
-      return part
-    })
-    return <span key={i}>{parts}{i < lines.length - 1 ? '\n' : ''}</span>
-  })
-}
 
 export default function ChatMessage({ message, isStreaming }) {
   const isUser = message.role === 'user'
@@ -28,14 +15,14 @@ export default function ChatMessage({ message, isStreaming }) {
 
         {/* Bubble */}
         <div
-          className={`rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+          className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
             isUser
-              ? 'bg-[var(--accent)] text-white rounded-br-md'
+              ? 'bg-[var(--accent)] text-white rounded-br-md whitespace-pre-wrap'
               : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border)] rounded-bl-md'
           }`}
         >
           {message.content
-            ? (isUser ? message.content : renderMarkdown(message.content))
+            ? (isUser ? message.content : <ReactMarkdown className="markdown-content">{message.content}</ReactMarkdown>)
             : null
           }
           {!message.content && isStreaming && !isUser && (

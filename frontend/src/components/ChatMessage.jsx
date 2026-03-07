@@ -21,10 +21,11 @@ export default function ChatMessage({ message, isStreaming }) {
               : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border)] rounded-bl-md'
           }`}
         >
-          {message.content
-            ? (isUser ? message.content : <ReactMarkdown className="markdown-content">{message.content}</ReactMarkdown>)
-            : null
-          }
+          {message.content && (
+            isUser
+              ? message.content
+              : <ReactMarkdown className="markdown-content">{message.content}</ReactMarkdown>
+          )}
           {!message.content && isStreaming && !isUser && (
             <span className="inline-flex gap-1">
               <span className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce [animation-delay:0ms]" />

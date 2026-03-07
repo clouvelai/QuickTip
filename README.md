@@ -79,22 +79,20 @@ ANTHROPIC_MODEL=claude-sonnet-4-20250514  # Claude model (optional)
 ### 2. Backend
 
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+python -m venv backend/venv
+source backend/venv/bin/activate
+pip install -r backend/requirements.txt
 ```
 
 ### 3. Frontend
 
 ```bash
-cd frontend
-npm install
+cd frontend && npm install
 ```
 
 ## Running
 
-Start all three services:
+Start all three services from the project root:
 
 ```bash
 # Terminal 1 — LLM (if using Ollama)
@@ -105,8 +103,7 @@ source backend/venv/bin/activate
 uvicorn backend.main:app --reload --port 8000
 
 # Terminal 3 — Frontend
-cd frontend
-npm run dev
+cd frontend && npm run dev
 ```
 
 Open **http://localhost:5173** — the frontend proxies `/api` requests to the backend.

@@ -47,7 +47,7 @@ class OrchestratorAgent:
     async def run(self, user_message: str) -> AsyncGenerator[dict, None]:
         """Classify intent, pick a specialist, and delegate."""
         intent = classify_intent(user_message)
-        agent_cls = _AGENT_MAP.get(intent, StatAnalystAgent)
+        agent_cls = _AGENT_MAP[intent]
         agent = agent_cls()
 
         # Emit a routing event so the frontend knows which specialist is handling it

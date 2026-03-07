@@ -5,7 +5,7 @@ import traceback
 from typing import AsyncGenerator
 
 from backend.agents.llm_client import chat_completion, LLM_PROVIDER
-from backend.tools.registry import get_openai_tools_schema, get_tool_function, TOOL_REGISTRY
+from backend.tools.registry import get_openai_tools_schema, get_tool_function
 
 MAX_TOOL_ROUNDS = 5
 

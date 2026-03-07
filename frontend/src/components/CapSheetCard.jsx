@@ -3,12 +3,21 @@ export default function CapSheetCard({ data }) {
 
   const { team, players, salary_cap, total_salary, cap_space } = data
 
-  const capStatus = cap_space > 0 ? 'under' : total_salary > (salary_cap * 1.1) ? 'tax' : 'over'
-  const statusColor = {
+  let capStatus
+  if (cap_space > 0) {
+    capStatus = 'under'
+  } else if (total_salary > salary_cap * 1.1) {
+    capStatus = 'tax'
+  } else {
+    capStatus = 'over'
+  }
+
+  const statusColors = {
     under: 'var(--success)',
     over: 'var(--danger)',
     tax: 'var(--warning)',
-  }[capStatus]
+  }
+  const statusColor = statusColors[capStatus]
 
   const fmt = (n) => {
     if (n == null) return '-'
@@ -26,7 +35,7 @@ export default function CapSheetCard({ data }) {
           className="text-xs font-semibold px-2 py-0.5 rounded-full"
           style={{ color: statusColor, backgroundColor: `${statusColor}20` }}
         >
-          {capStatus === 'under' ? 'Under Cap' : capStatus === 'tax' ? 'In Tax' : 'Over Cap'}
+          {{ under: 'Under Cap', tax: 'In Tax', over: 'Over Cap' }[capStatus]}
         </span>
       </div>
 

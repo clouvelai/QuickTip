@@ -3,10 +3,16 @@ import { useState } from 'react'
 const toolDisplayNames = {
   get_player_contract: 'Player Contract Lookup',
   get_team_cap_sheet: 'Team Cap Sheet',
-  evaluate_trade: 'Trade Evaluator',
-  get_player_stats: 'Player Stats',
+  get_free_agents: 'Free Agent Search',
+  get_player_season_stats: 'Season Stats',
+  get_player_career_stats: 'Career Stats',
+  get_stat_leaders: 'League Leaders',
   get_team_roster: 'Team Roster',
-  get_league_leaders: 'League Leaders',
+  get_player_profile: 'Player Profile',
+  get_cap_info: 'Salary Cap Info',
+  check_trade_salary_match: 'Trade Salary Match',
+  get_available_exceptions: 'Available Exceptions',
+  analyze_trade: 'Trade Analyzer',
 }
 
 export default function ToolCallCard({ toolCall }) {

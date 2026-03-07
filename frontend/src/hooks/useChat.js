@@ -113,7 +113,7 @@ export function useChat() {
       setIsStreaming(false)
       abortRef.current = null
     }
-  }, [messages, isStreaming])
+  }, [isStreaming])
 
   const clearMessages = useCallback(() => {
     setMessages([])

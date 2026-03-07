@@ -90,10 +90,6 @@ async def _ollama_completion(
                         if tc.id:
                             collected_tool_calls[idx]["id"] = tc.id
 
-                # Check for finish
-                if choice.finish_reason == "tool_calls" or choice.finish_reason == "stop":
-                    pass
-
         # Emit collected tool calls
         for idx in sorted(collected_tool_calls.keys()):
             tc = collected_tool_calls[idx]

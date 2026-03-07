@@ -2,14 +2,15 @@ import ToolCallCard from './ToolCallCard'
 
 function renderMarkdown(text) {
   if (!text) return null
-  return text.split('\n').map((line, i) => {
+  const lines = text.split('\n')
+  return lines.map((line, i) => {
     const parts = line.split(/(\*\*.*?\*\*)/g).map((part, j) => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={j} className="font-semibold text-white">{part.slice(2, -2)}</strong>
       }
       return part
     })
-    return <span key={i}>{parts}{i < text.split('\n').length - 1 ? '\n' : ''}</span>
+    return <span key={i}>{parts}{i < lines.length - 1 ? '\n' : ''}</span>
   })
 }
 
@@ -32,16 +33,16 @@ export default function ChatMessage({ message, isStreaming }) {
               : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border)] rounded-bl-md'
           }`}
         >
-          {message.content ? (
-            isUser ? message.content : renderMarkdown(message.content)
-          ) : (
-            isStreaming && !isUser ? (
-              <span className="inline-flex gap-1">
-                <span className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce [animation-delay:0ms]" />
-                <span className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce [animation-delay:150ms]" />
-                <span className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce [animation-delay:300ms]" />
-              </span>
-            ) : null
+          {message.content
+            ? (isUser ? message.content : renderMarkdown(message.content))
+            : null
+          }
+          {!message.content && isStreaming && !isUser && (
+            <span className="inline-flex gap-1">
+              <span className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce [animation-delay:0ms]" />
+              <span className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce [animation-delay:150ms]" />
+              <span className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce [animation-delay:300ms]" />
+            </span>
           )}
         </div>
 

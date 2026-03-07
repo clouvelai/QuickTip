@@ -65,29 +65,20 @@ async def get_team_cap_sheet(team_abbreviation: str) -> dict:
 async def get_free_agents(position: str = None) -> dict:
     """Get players without active contracts, optionally filtered by position."""
     pool = await get_pool()
+    base_query = """
+        SELECT p.first_name, p.last_name, p.position, t.abbreviation AS team
+        FROM players p
+        LEFT JOIN teams t ON t.id = p.team_id
+        WHERE p.id NOT IN (SELECT player_id FROM contracts)
+    """
     if position:
         rows = await pool.fetch(
-            """
-            SELECT p.first_name, p.last_name, p.position, t.abbreviation AS team
-            FROM players p
-            LEFT JOIN teams t ON t.id = p.team_id
-            WHERE p.id NOT IN (SELECT player_id FROM contracts)
-              AND p.position ILIKE $1
-            ORDER BY p.last_name
-            LIMIT 50
-            """,
+            base_query + "AND p.position ILIKE $1 ORDER BY p.last_name LIMIT 50",
             f"%{position}%",
         )
     else:
         rows = await pool.fetch(
-            """
-            SELECT p.first_name, p.last_name, p.position, t.abbreviation AS team
-            FROM players p
-            LEFT JOIN teams t ON t.id = p.team_id
-            WHERE p.id NOT IN (SELECT player_id FROM contracts)
-            ORDER BY p.last_name
-            LIMIT 50
-            """
+            base_query + "ORDER BY p.last_name LIMIT 50"
         )
     return {
         "count": len(rows),

@@ -1,8 +1,29 @@
 """Trade analysis tool — uses contract and CBA tools internally."""
 
-import json
 from backend.tools.contract_tools import get_player_contract, get_team_cap_sheet
 from backend.tools.cba_tools import check_trade_salary_match, get_cap_info, CAP_THRESHOLDS
+
+
+def _total_salary(contracts_list: list[dict]) -> int:
+    """Sum cap_hit from the most recent contract for each player."""
+    return sum(
+        (c["contracts"][0].get("cap_hit") or 0)
+        for c in contracts_list
+        if c.get("contracts")
+    )
+
+
+async def _fetch_contracts(player_names: list[str]) -> tuple[list[dict], list[str]]:
+    """Fetch contracts for a list of players, returning (contracts, errors)."""
+    contracts = []
+    errors = []
+    for name in player_names:
+        contract = await get_player_contract(name)
+        if "error" in contract:
+            errors.append(contract["error"])
+        else:
+            contracts.append(contract)
+    return contracts, errors
 
 
 async def analyze_trade(team1_players: list[str], team2_players: list[str]) -> dict:
@@ -14,24 +35,8 @@ async def analyze_trade(team1_players: list[str], team2_players: list[str]) -> d
     """
     cap_info = await get_cap_info()
 
-    # Fetch contracts for all players
-    team1_contracts = []
-    team1_errors = []
-    for name in team1_players:
-        contract = await get_player_contract(name)
-        if "error" in contract:
-            team1_errors.append(contract["error"])
-        else:
-            team1_contracts.append(contract)
-
-    team2_contracts = []
-    team2_errors = []
-    for name in team2_players:
-        contract = await get_player_contract(name)
-        if "error" in contract:
-            team2_errors.append(contract["error"])
-        else:
-            team2_contracts.append(contract)
+    team1_contracts, team1_errors = await _fetch_contracts(team1_players)
+    team2_contracts, team2_errors = await _fetch_contracts(team2_players)
 
     if team1_errors or team2_errors:
         return {
@@ -39,17 +44,8 @@ async def analyze_trade(team1_players: list[str], team2_players: list[str]) -> d
             "missing": team1_errors + team2_errors,
         }
 
-    # Calculate total outgoing salaries (use most recent contract's cap_hit)
-    def total_salary(contracts_list):
-        total = 0
-        for c in contracts_list:
-            if c.get("contracts"):
-                hit = c["contracts"][0].get("cap_hit") or 0
-                total += hit
-        return total
-
-    team1_outgoing = total_salary(team1_contracts)
-    team2_outgoing = total_salary(team2_contracts)
+    team1_outgoing = _total_salary(team1_contracts)
+    team2_outgoing = _total_salary(team2_contracts)
 
     # Determine teams
     team1_name = team1_contracts[0].get("team", "Team 1") if team1_contracts else "Team 1"

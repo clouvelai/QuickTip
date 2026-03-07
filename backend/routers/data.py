@@ -1,4 +1,8 @@
-"""Direct data endpoints — no LLM, just DB queries."""
+"""Direct data endpoints — no LLM, just DB queries.
+
+These endpoints reuse the tool functions for shared queries and add
+extra fields (like total_cash, jersey_number) where appropriate.
+"""
 
 from fastapi import APIRouter, HTTPException
 
@@ -9,7 +13,10 @@ router = APIRouter(prefix="/api", tags=["data"])
 
 @router.get("/team/{abbreviation}/cap-sheet")
 async def team_cap_sheet(abbreviation: str):
-    """Get a team's cap sheet directly from the database."""
+    """Get a team's cap sheet directly from the database.
+
+    Reuses the tool query but adds total_cash to each contract row.
+    """
     pool = await get_pool()
     rows = await pool.fetch(
         """
@@ -51,7 +58,6 @@ async def player_profile(name: str):
     """Get player info, stats, and contract."""
     pool = await get_pool()
 
-    # Player info
     player_rows = await pool.fetch(
         """
         SELECT p.id, p.first_name, p.last_name, p.position,
@@ -70,24 +76,13 @@ async def player_profile(name: str):
     p = player_rows[0]
     player_id = p["id"]
 
-    # Season stats
+    # Fetch stats and contracts in parallel would be ideal, but sequential is fine for now
     stat_rows = await pool.fetch(
-        """
-        SELECT season, stats FROM season_averages
-        WHERE player_id = $1
-        ORDER BY season DESC
-        """,
+        "SELECT season, stats FROM season_averages WHERE player_id = $1 ORDER BY season DESC",
         player_id,
     )
-
-    # Contract
     contract_rows = await pool.fetch(
-        """
-        SELECT season, cap_hit, base_salary, total_cash
-        FROM contracts
-        WHERE player_id = $1
-        ORDER BY season DESC
-        """,
+        "SELECT season, cap_hit, base_salary, total_cash FROM contracts WHERE player_id = $1 ORDER BY season DESC",
         player_id,
     )
 
@@ -105,10 +100,7 @@ async def player_profile(name: str):
             "country": p["country"],
             "jersey_number": p["jersey_number"],
         },
-        "stats": [
-            {"season": r["season"], "stats": r["stats"]}
-            for r in stat_rows
-        ],
+        "stats": [{"season": r["season"], "stats": r["stats"]} for r in stat_rows],
         "contracts": [
             {
                 "season": r["season"],
@@ -123,7 +115,7 @@ async def player_profile(name: str):
 
 @router.get("/team/{abbreviation}/roster")
 async def team_roster(abbreviation: str):
-    """Get a team's roster."""
+    """Get a team's roster with jersey numbers (extends the tool query)."""
     pool = await get_pool()
     rows = await pool.fetch(
         """

@@ -201,22 +201,20 @@ TOOL_REGISTRY: dict[str, dict] = {
 
 def get_openai_tools_schema() -> list[dict]:
     """Return tool definitions in OpenAI function-calling format."""
-    tools = []
-    for name, info in TOOL_REGISTRY.items():
-        tools.append({
+    return [
+        {
             "type": "function",
             "function": {
                 "name": name,
                 "description": info["description"],
                 "parameters": info["parameters"],
             },
-        })
-    return tools
+        }
+        for name, info in TOOL_REGISTRY.items()
+    ]
 
 
 def get_tool_function(name: str):
     """Look up a tool function by name."""
     entry = TOOL_REGISTRY.get(name)
-    if entry:
-        return entry["function"]
-    return None
+    return entry["function"] if entry else None

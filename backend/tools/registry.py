@@ -1,29 +1,31 @@
 """Tool registry — maps tool names to functions, descriptions, and JSON Schema parameters."""
 
-from backend.tools.contract_tools import get_player_contract, get_team_cap_sheet, get_free_agents
+from backend.tools.bdl_gm_tools import (
+    bdl_get_teams,
+    bdl_get_team_roster,
+    bdl_get_team_cap,
+    bdl_validate_trade,
+    bdl_build_trade_url,
+    bdl_find_salary_matches,
+)
 from backend.tools.stat_tools import get_player_season_stats, get_player_career_stats, get_stat_leaders
-from backend.tools.roster_tools import get_team_roster, get_player_profile
+from backend.tools.roster_tools import get_player_profile
 from backend.tools.cba_tools import get_cap_info, check_trade_salary_match, get_available_exceptions
-from backend.tools.trade_tools import analyze_trade
 
 TOOL_REGISTRY: dict[str, dict] = {
-    "get_player_contract": {
-        "function": get_player_contract,
-        "description": "Get contract details (cap hit, base salary, seasons) for an NBA player by name.",
+    # --- BDL Trade Machine tools ---
+    "bdl_get_teams": {
+        "function": bdl_get_teams,
+        "description": "Get all NBA teams from the BDL Trade Machine.",
         "parameters": {
             "type": "object",
-            "properties": {
-                "player_name": {
-                    "type": "string",
-                    "description": "The player's name (e.g. 'LeBron James')",
-                },
-            },
-            "required": ["player_name"],
+            "properties": {},
+            "required": [],
         },
     },
-    "get_team_cap_sheet": {
-        "function": get_team_cap_sheet,
-        "description": "Get the full cap sheet for an NBA team — all player contracts and total salary.",
+    "bdl_get_team_roster": {
+        "function": bdl_get_team_roster,
+        "description": "Get team roster with player contracts and salary details.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -31,24 +33,126 @@ TOOL_REGISTRY: dict[str, dict] = {
                     "type": "string",
                     "description": "Team abbreviation (e.g. 'LAL', 'BOS', 'GSW')",
                 },
+                "season": {
+                    "type": "integer",
+                    "description": "Season year (default: 2025)",
+                },
             },
             "required": ["team_abbreviation"],
         },
     },
-    "get_free_agents": {
-        "function": get_free_agents,
-        "description": "Get a list of free agents (players without active contracts), optionally filtered by position.",
+    "bdl_get_team_cap": {
+        "function": bdl_get_team_cap,
+        "description": "Get team cap info from the BDL Trade Machine — cap space, apron room, salary commitments, cap holds.",
         "parameters": {
             "type": "object",
             "properties": {
-                "position": {
+                "team_abbreviation": {
                     "type": "string",
-                    "description": "Filter by position (e.g. 'G', 'F', 'C'). Optional.",
+                    "description": "Team abbreviation (e.g. 'LAL', 'BOS', 'GSW')",
+                },
+                "season": {
+                    "type": "integer",
+                    "description": "Season year (default: 2025)",
                 },
             },
-            "required": [],
+            "required": ["team_abbreviation"],
         },
     },
+    "bdl_validate_trade": {
+        "function": bdl_validate_trade,
+        "description": "Validate a proposed trade via the BDL Trade Machine API. Checks CBA compliance and salary matching.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "team_abbr": {
+                                "type": "string",
+                                "description": "Team abbreviation",
+                            },
+                            "sending_player_names": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Player names this team is sending out",
+                            },
+                            "receiving_player_names": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Player names this team is receiving",
+                            },
+                        },
+                        "required": ["team_abbr", "sending_player_names"],
+                    },
+                    "description": "Teams involved in the trade",
+                },
+                "season": {
+                    "type": "integer",
+                    "description": "Season year (default: 2025)",
+                },
+            },
+            "required": ["teams"],
+        },
+    },
+    "bdl_build_trade_url": {
+        "function": bdl_build_trade_url,
+        "description": "Build a trade.balldontlie.io URL that loads a proposed trade in the Trade Machine. Returns a clickable link.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "team_abbr": {
+                                "type": "string",
+                                "description": "Team abbreviation",
+                            },
+                            "sending_player_names": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Player names this team is sending out",
+                            },
+                        },
+                        "required": ["team_abbr", "sending_player_names"],
+                    },
+                    "description": "Teams and the players each is sending",
+                },
+                "season": {
+                    "type": "integer",
+                    "description": "Season year (default: 2025)",
+                },
+            },
+            "required": ["teams"],
+        },
+    },
+    "bdl_find_salary_matches": {
+        "function": bdl_find_salary_matches,
+        "description": "Find salary-matching trade packages for a player across the league. Scans team rosters to find player combinations whose salary matches CBA trade rules.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "player_name": {
+                    "type": "string",
+                    "description": "The player to find trade matches for (e.g. 'Klay Thompson')",
+                },
+                "target_team_abbr": {
+                    "type": "string",
+                    "description": "Only search this team's roster for matches (optional, searches all teams if omitted)",
+                },
+                "max_players_in_package": {
+                    "type": "integer",
+                    "description": "Maximum players in a matching package (1-3, default: 3)",
+                },
+            },
+            "required": ["player_name"],
+        },
+    },
+    # --- Stats tools (local DB) ---
     "get_player_season_stats": {
         "function": get_player_season_stats,
         "description": "Get a player's season averages (points, rebounds, assists, etc.) for a specific season.",
@@ -103,20 +207,7 @@ TOOL_REGISTRY: dict[str, dict] = {
             "required": ["stat"],
         },
     },
-    "get_team_roster": {
-        "function": get_team_roster,
-        "description": "Get the current roster for an NBA team by abbreviation.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "team_abbreviation": {
-                    "type": "string",
-                    "description": "Team abbreviation (e.g. 'LAL', 'BOS')",
-                },
-            },
-            "required": ["team_abbreviation"],
-        },
-    },
+    # --- Player profile (local DB) ---
     "get_player_profile": {
         "function": get_player_profile,
         "description": "Get full profile for an NBA player — bio, draft info, physical measurements.",
@@ -131,6 +222,7 @@ TOOL_REGISTRY: dict[str, dict] = {
             "required": ["player_name"],
         },
     },
+    # --- CBA tools (pure Python) ---
     "get_cap_info": {
         "function": get_cap_info,
         "description": "Get current NBA salary cap thresholds — cap, luxury tax, apron lines, exception values.",
@@ -174,26 +266,6 @@ TOOL_REGISTRY: dict[str, dict] = {
                 },
             },
             "required": ["team_total_salary"],
-        },
-    },
-    "analyze_trade": {
-        "function": analyze_trade,
-        "description": "Analyze a proposed trade between two teams. Checks salary matching and CBA compliance.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "team1_players": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "List of player names team 1 is sending",
-                },
-                "team2_players": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "List of player names team 2 is sending",
-                },
-            },
-            "required": ["team1_players", "team2_players"],
         },
     },
 }

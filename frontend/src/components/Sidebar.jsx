@@ -1,9 +1,9 @@
 const quickPrompts = [
-  "What's the Lakers' cap situation?",
-  "Analyze a Trae Young for Zach LaVine trade",
+  "Find salary-matching trades for Klay Thompson",
+  "Show me Dallas's cap situation",
+  "Can Boston trade for Jimmy Butler? Build that trade.",
+  "What's the Warriors roster look like?",
   "Who leads the league in assists?",
-  "Is Jaylen Brown's contract tradeable?",
-  "Show me the Celtics roster",
 ]
 
 export default function Sidebar({ onSendMessage, onClear }) {
@@ -20,7 +20,7 @@ export default function Sidebar({ onSendMessage, onClear }) {
               QuickTip
             </h1>
             <p className="text-xs text-[var(--text-muted)] leading-tight">
-              NBA GM Copilot
+              Trade Machine Co-Pilot
             </p>
           </div>
         </div>

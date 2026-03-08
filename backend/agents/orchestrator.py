@@ -14,9 +14,9 @@ from backend.agents.specialists import (
 # Keyword patterns for routing (checked in order, first match wins)
 # CBA patterns come before contract so "salary cap", "cap space" etc. route to CBA
 ROUTE_PATTERNS = [
-    (r"\b(trade|deal|swap|package|send|acquire)\b", "trade"),
-    (r"\b(salary\s?cap|cap\s?space|luxury\s?tax|apron|exception|mle|bae|cba|rule|sign-and-trade|bird\s?rights)\b", "cba"),
-    (r"\b(contract|salary|cap\s?hit|cap\s?sheet|money|pay|paid|earning|worth)\b", "contract"),
+    (r"\b(trade|deal|swap|package|send|acquire|trade\s?machine)\b|salary.?match", "trade"),
+    (r"\b(salary\s?cap|cap\s?(space|situation|room)|luxury\s?tax|apron|exception|mle|bae|cba|rule|sign-and-trade|bird\s?rights)\b", "cba"),
+    (r"\b(contract|salary|cap\s?hit|cap\s?sheet|money|pay|paid|earning|making|worth)\b", "contract"),
     (r"\b(roster|lineup|team\s?roster|depth\s?chart|players?\s?on)\b", "roster"),
 ]
 

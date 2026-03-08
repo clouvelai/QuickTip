@@ -44,9 +44,9 @@ function App() {
 
 function WelcomeScreen({ onSend }) {
   const starters = [
-    { label: 'Cap Analysis', text: "What's the Lakers' cap situation?" },
-    { label: 'Trade Eval', text: 'Analyze a Trae Young for Zach LaVine trade' },
-    { label: 'Stats', text: 'Who leads the league in assists?' },
+    { label: 'Trade Ideas', text: 'Find salary-matching trades for Klay Thompson' },
+    { label: 'Cap Analysis', text: "Show me Dallas's cap situation" },
+    { label: 'Trade Eval', text: 'Can Boston trade for Jimmy Butler? Build that trade.' },
   ]
 
   return (
@@ -60,7 +60,7 @@ function WelcomeScreen({ onSend }) {
           Welcome to QuickTip
         </h2>
         <p className="text-[var(--text-secondary)] text-sm mb-8">
-          Your NBA GM Copilot. Ask about player contracts, cap sheets, trade scenarios, stats, and more.
+          Your Trade Machine Co-Pilot. Find trades, check salary matching, and load deals directly into the BDL Trade Machine.
         </p>
 
         <div className="flex flex-wrap gap-3 justify-center">
